@@ -27,5 +27,12 @@ pipeline{
                 sh "mvn test"
             }
         }
+        stage("Sonarqube Analysis") {
+            steps {
+                withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token-1') {
+                    sh "mvn sonar:sonar"
+                }
+            }
+        }
     }
 }
