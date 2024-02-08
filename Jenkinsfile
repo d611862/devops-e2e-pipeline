@@ -10,7 +10,7 @@ pipeline{
         APP_NAME = "cicd-production-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "shehanperera77"
-        DOCKER_PASS = 'dockerhub'
+        DOCKER_PASS = 'docker-access-token'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         //JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
@@ -52,6 +52,21 @@ pipeline{
                     waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token-1'
                 }              
             }
+        }
+        stage("Build & Push Docker Image") {
+            steps {
+                script {
+                    docker.withRegistry('',DOCKER_PASS) {
+                        docker_image = docker.build "${IMAGE_NAME}"
+                    }
+
+                    docker.withRegistry('',DOCKER_PASS) {
+                        docker_image.push("${IMAGE_TAG}")
+                        docker_image.push('latest')
+                    }
+                }
+            }
+
         }
     }
 }
